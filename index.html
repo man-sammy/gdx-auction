@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Auction System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .admin-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .admin-panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .item-content {
+            padding: 25px;
+        }
+
+        .item-name {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .price-info {
+            margin-bottom: 20px;
+        }
+
+        .price-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .price-value {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .current-bid {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .bid-section {
+            margin-top: 15px;
+        }
+
+        .bid-section input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .bid-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .bid-section button {
+            width: 100%;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-sold {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .bid-count {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .no-items {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 50px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .export-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .registration-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .registered-info {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 GDX Staff Auction System</h1>
+
+        <div class="registered-info" id="userInfo" style="display: none;"></div>
+
+        <div class="export-section">
+            <button class="btn btn-success" onclick="exportToExcel()">📥 Download Auction Data (Excel)</button>
+        </div>
+
+        <div class="admin-panel">
+            <h2>Auction Timer Control</h2>
+            <div class="form-group">
+                <label>Set Auction End Time</label>
+                <input type="datetime-local" id="auctionEndTime">
+            </div>
+            <button class="btn" onclick="setAuctionTimer()">Start/Update Countdown</button>
+            <button class="btn btn-danger" onclick="stopAuction()">End Auction Now</button>
+            <div id="timerDisplay" style="margin-top: 15px; font-size: 1.2em; color: #667eea; font-weight: 600;"></div>
+        </div>
+
+        <div class="admin-panel">
+            <h2>Add New Item</h2>
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="itemName" placeholder="e.g., Vintage Watch, Gift Basket">
+            </div>
+            <div class="form-group">
+                <label>Starting Price (₦)</label>
+                <input type="number" id="startPrice" placeholder="e.g., 50000" min="0" step="1">
+            </div>
+            <div class="form-group">
+                <label>Item Image</label>
+                <input type="file" id="itemImage" accept="image/*" onchange="previewImage(this)">
+                <img id="imagePreview" class="image-preview" style="display: none;">
+            </div>
+            <button class="btn" onclick="addItem()">Add Item to Auction</button>
+        </div>
+
+        <div id="itemsContainer" class="items-grid"></div>
+        <div id="noItems" class="no-items" style="display: none;">
+            No items in auction yet. Add your first item above!
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registrationModal" class="registration-modal">
+        <div class="modal-content">
+            <h2>Register to Bid</h2>
+            <p>Please provide your details to participate in the auction:</p>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="bidderName" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="bidderEmail" placeholder="Enter your email">
+            </div>
+            <button class="btn" onclick="registerBidder()">Register</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let items = [];
+        let currentUser = null;
+        let auctionEndTime = null;
+        let timerInterval = null;
+
+        // Check if user is registered
+        function checkRegistration() {
+            const storedUser = localStorage.getItem('auctionUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                displayUserInfo();
+            } else {
+                document.getElementById('registrationModal').style.display = 'flex';
+            }
+        }
+
+        function displayUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            userInfo.textContent = `Registered as: ${currentUser.name} (${currentUser.email})`;
+            userInfo.style.display = 'block';
+        }
+
+        function registerBidder() {
+            const name = document.getElementById('bidderName').value.trim();
+            const email = document.getElementById('bidderEmail').value.trim();
+
+            if (!name || !email) {
+                alert('Please provide both name and email');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                alert('Please provide a valid email address');
+                return;
+            }
+
+            currentUser = {
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                name: name,
+                email: email,
+                registeredAt: new Date().toISOString()
+            };
+
+            localStorage.setItem('auctionUser', JSON.stringify(currentUser));
+            document.getElementById('registrationModal').style.display = 'none';
+            displayUserInfo();
+        }
+
+        function setAuctionTimer() {
+            const endTimeInput = document.getElementById('auctionEndTime').value;
+            if (!endTimeInput) {
+                alert('Please select an end date and time');
+                return;
+            }
+
+            auctionEndTime = new Date(endTimeInput).getTime();
+            localStorage.setItem('auctionEndTime', auctionEndTime);
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+            alert('Auction timer set successfully!');
+        }
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const storedEndTime = localStorage.getItem('auctionEndTime');
+            
+            if (storedEndTime) {
+                auctionEndTime = parseInt(storedEndTime);
+            }
+            
+            if (!auctionEndTime) {
+                document.getElementById('timerDisplay').innerHTML = '⏱️ No timer set';
+                return;
+            }
+
+            const distance = auctionEndTime - now;
+
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').innerHTML = '🛑 Auction has ended';
+                endAllBidding();
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('timerDisplay').innerHTML = 
+                `⏱️ Time Remaining: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function stopAuction() {
+            if (confirm('Are you sure you want to end the auction now?')) {
+                endAllBidding();
+                clearInterval(timerInterval);
+                localStorage.removeItem('auctionEndTime');
+                auctionEndTime = null;
+                document.getElementById('timerDisplay').innerHTML = '🛑 Auction ended by admin';
+            }
+        }
+
+        function endAllBidding() {
+            items.forEach(item => {
+                if (item.status === 'active' && item.bids.length > 0) {
+                    item.status = 'sold';
+                }
+            });
+            saveData();
+            renderItems();
+        }
+
+        function isAuctionActive() {
+            if (!auctionEndTime) return true;
+            return new Date().getTime() < auctionEndTime;
+        }
+
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addItem() {
+            const name = document.getElementById('itemName').value.trim();
+            const startPrice = parseFloat(document.getElementById('startPrice').value);
+            const imageInput = document.getElementById('itemImage');
+
+            if (!name || isNaN(startPrice) || startPrice < 0) {
+                alert('Please enter a valid item name and starting price');
+                return;
+            }
+
+            const item = {
+                id: Date.now(),
+                name: name,
+                startPrice: startPrice,
+                currentBid: startPrice,
+                bids: [],
+                status: 'active',
+                image: null
+            };
+
+            if (imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    item.image = e.target.result;
+                    items.push(item);
+                    saveData();
+                    renderItems();
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                items.push(item);
+                saveData();
+                renderItems();
+            }
+
+            document.getElementById('itemName').value = '';
+            document.getElementById('startPrice').value = '';
+            document.getElementById('itemImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        function placeBid(itemId) {
+            if (!currentUser) {
+                alert('Please register first to place a bid');
+                return;
+            }
+
+            if (!isAuctionActive()) {
+                alert('Auction has ended. Bidding is no longer allowed.');
+                return;
+            }
+
+            const item = items.find(i => i.id === itemId);
+            if (!item || item.status !== 'active') return;
+
+            const bidInput = document.getElementById(`bid-${itemId}`);
+            const bidAmount = parseFloat(bidInput.value);
+
+            if (isNaN(bidAmount) || bidAmount <= item.currentBid) {
+                alert(`Bid must be greater than ₦${item.currentBid.toFixed(2)}`);
+                return;
+            }
+
+            item.currentBid = bidAmount;
+            item.bids.push({
+                amount: bidAmount,
+                bidderName: currentUser.name,
+                bidderEmail: currentUser.email,
+                bidderId: currentUser.id,
+                timestamp: new Date().toISOString()
+            });
+
+            bidInput.value = '';
+            saveData();
+            renderItems();
+        }
+
+        function markAsSold(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (item.bids.length === 0) {
+                alert('No bids have been placed on this item yet.');
+                return;
+            }
+
+            if (confirm(`Mark "${item.name}" as SOLD for ₦${item.currentBid.toFixed(2)}?`)) {
+                item.status = 'sold';
+                saveData();
+                renderItems();
+            }
+        }
+
+        function deleteItem(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            if (confirm(`Delete "${item.name}" from auction?`)) {
+                items = items.filter(i => i.id !== itemId);
+                saveData();
+                renderItems();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('auctionItems', JSON.stringify(items));
+        }
+
+        function loadData() {
+            const stored = localStorage.getItem('auctionItems');
+            if (stored) {
+                items = JSON.parse(stored);
+            }
+        }
+
+        function renderItems() {
+            const container = document.getElementById('itemsContainer');
+            const noItems = document.getElementById('noItems');
+            const auctionActive = isAuctionActive();
+
+            if (items.length === 0) {
+                container.innerHTML = '';
+                noItems.style.display = 'block';
+                return;
+            }
+
+            noItems.style.display = 'none';
+            
+            container.innerHTML = items.map(item => {
+                const isWinning = currentUser && item.bids.length > 0 && 
+                    item.bids[item.bids.length - 1].bidderId === currentUser.id && 
+                    item.status === 'active';
+                
+                return `
+                    <div class="item-card">
+                        ${item.image ? 
+                            `<img src="${item.image}" alt="${item.name}" class="item-image">` :
+                            `<div class="item-image" style="display: flex; align-items: center; justify-content: center; background: #e0e0e0; color: #999;">No Image</div>`
+                        }
+                        <div class="item-content">
+                            <div class="item-name">${item.name}</div>
+                            
+                            <div class="price-info">
+                                <div class="price-label">Starting Price</div>
+                                <div style="font-size: 1.2em; color: #999;">₦${item.startPrice.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            </div>
+
+                            <div class="current-bid">
+                                <div class="price-label">Current Highest Bid</div>
+                                <div class="price-value">₦${item.currentBid.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                ${item.bids.length > 0 ? 
+                                    `<div class="bid-count">📊 ${item.bids.length} bid${item.bids.length !== 1 ? 's' : ''} placed</div>` : 
+                                    '<div class="bid-count">No bids yet - be the first!</div>'
+                                }
+                                ${isWinning ? '<div style="color: #27ae60; font-weight: 600; margin-top: 10px;">🎉 You\'re winning!</div>' : ''}
+                            </div>
+
+                            ${item.status === 'active' && auctionActive ? `
+                                <div class="bid-section">
+                                    <input 
+                                        type="number" 
+                                        id="bid-${item.id}" 
+                                        placeholder="Enter your bid amount" 
+                                        min="${(item.currentBid + 1)}" 
+                                        step="1"
+                                    >
+                                    <button class="btn" onclick="placeBid(${item.id})">Place Bid</button>
+                                </div>
+                            ` : !auctionActive ? '<div style="color: #e74c3c; font-weight: 600; margin-top: 10px;">⏰ Bidding has ended</div>' : ''}
+
+                            <div class="admin-actions">
+                                ${item.status === 'active' && item.bids.length > 0 ? 
+                                    `<button class="btn" onclick="markAsSold(${item.id})">Mark as Sold</button>` : 
+                                    ''
+                                }
+                                <button class="btn btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+                            </div>
+
+                            <span class="status-badge ${item.status === 'active' ? 'status-active' : 'status-sold'}">
+                                ${item.status === 'active' ? '🟢 Active' : '✅ Sold'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportToExcel() {
+            if (items.length === 0) {
+                alert('No auction data to export');
+                return;
+            }
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+
+            // Summary Sheet
+            const summaryData = items.map(item => ({
+                'Item Name': item.name,
+                'Starting Price (₦)': item.startPrice,
+                'Final Price (₦)': item.currentBid,
+                'Total Bids': item.bids.length,
+                'Status': item.status.toUpperCase(),
+                'Winner Name': item.bids.length > 0 ? item.bids[item.bids.length - 1].bidderName : 'No bids',
+                'Winner Email': item.bids.length > 0 ? item.bids[item.bids.length - 1].bidderEmail : 'N/A'
+            }));
+            const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summarySheet, 'Auction Summary');
+
+            // All Bids Sheet
+            const allBids = [];
+            items.forEach(item => {
+                item.bids.forEach(bid => {
+                    allBids.push({
+                        'Item Name': item.name,
+                        'Bidder Name': bid.bidderName,
+                        'Bidder Email': bid.bidderEmail,
+                        'Bid Amount (₦)': bid.amount,
+                        'Timestamp': new Date(bid.timestamp).toLocaleString()
+                    });
+                });
+            });
+            
+            if (allBids.length > 0) {
+                const bidsSheet = XLSX.utils.json_to_sheet(allBids);
+                XLSX.utils.book_append_sheet(wb, bidsSheet, 'All Bids');
+            }
+
+            // Download
+            const fileName = `GDX_Auction_Results_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+
+        // Initialize
+        loadData();
+        checkRegistration();
+        renderItems();
+        
+        // Load and start timer if exists
+        const storedEndTime = localStorage.getItem('auctionEndTime');
+        if (storedEndTime) {
+            auctionEndTime = parseInt(storedEndTime);
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+    </script>
+</body>
+</html>
